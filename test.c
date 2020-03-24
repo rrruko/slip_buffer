@@ -97,6 +97,36 @@ void slip_decode_single_fragment() {
   assert(strncmp("Hello, world!\n", decoded_buf, 14) == 0);
 }
 
+void slip_decode_multi_fragment() {
+  decoder dec;
+  uint8_t buf[32];
+  dec.buffer = buf;
+  dec.size = 32;
+  dec.pointer = 0;
+
+  post_slip_decoder(&dec, "Hello, ", 7, on_complete);
+  post_slip_decoder(&dec, "world!\n\xC0", 8, on_complete);
+  assert(strncmp("Hello, world!\n", decoded_buf, 14) == 0);
+}
+
+void slip_decode_multi_message() {
+  decoder dec;
+  uint8_t buf[32];
+  dec.buffer = buf;
+  dec.size = 32;
+  dec.pointer = 0;
+
+  post_slip_decoder(&dec, "Hello, ", 7, on_complete);
+  post_slip_decoder(&dec, "world!\n\xC0", 8, on_complete);
+  assert(strncmp("Hello, world!\n", decoded_buf, 14) == 0);
+
+  post_slip_decoder(&dec, "cha-la ", 7, on_complete);
+  post_slip_decoder(&dec, "head-", 5, on_complete);
+  post_slip_decoder(&dec, "cha-la\xC0", 7, on_complete);
+  assert(strncmp("cha-la head-cha-la", decoded_buf, 18) == 0);
+
+}
+
 int main() {
   slip_encode_identity();
   slip_encode_escape_frame_end();
@@ -106,6 +136,8 @@ int main() {
 
   slip_decode_identity();
   slip_decode_single_fragment();
+  slip_decode_multi_fragment();
+  slip_decode_multi_message();
 
   printf("All good\n");
 }
