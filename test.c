@@ -124,7 +124,21 @@ void slip_decode_multi_message() {
   post_slip_decoder(&dec, "head-", 5, on_complete);
   post_slip_decoder(&dec, "cha-la\xC0", 7, on_complete);
   assert(strncmp("cha-la head-cha-la", decoded_buf, 18) == 0);
+}
 
+void slip_decode_special_chars() {
+  decoder dec;
+  uint8_t buf[64];
+  dec.buffer = buf;
+  dec.size = 64;
+  dec.pointer = 0;
+
+  post_slip_decoder(&dec, "THERE ", 6, on_complete);
+  post_slip_decoder(&dec, "IS \xDB\xDC", 5, on_complete);
+  post_slip_decoder(&dec, "NO \xDB\xDD", 5, on_complete);
+  post_slip_decoder(&dec, "PLANET \xDB\xDD\xDD", 10, on_complete);
+  post_slip_decoder(&dec, "B\n\xC0", 3, on_complete);
+  assert(strncmp("THERE IS \xC0NO \xDBPLANET \xDB\xDD" "B\n", decoded_buf, 25) == 0);
 }
 
 int main() {
@@ -138,6 +152,7 @@ int main() {
   slip_decode_single_fragment();
   slip_decode_multi_fragment();
   slip_decode_multi_message();
+  slip_decode_special_chars();
 
   printf("All good\n");
 }
