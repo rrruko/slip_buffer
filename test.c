@@ -10,6 +10,7 @@ void slip_encode_identity() {
   uint8_t buf[32];
   enc.buffer = buf;
   enc.size = 32;
+  enc.pointer = 0;
 
   post_slip_encoder(&enc, "Hello, ", 7);
 
@@ -21,6 +22,7 @@ void slip_encode_escape_frame_end() {
   uint8_t buf[32];
   enc.buffer = buf;
   enc.size = 32;
+  enc.pointer = 0;
 
   post_slip_encoder(&enc, "\xC0", 1);
 
@@ -32,6 +34,7 @@ void slip_encode_escape_frame_escape() {
   uint8_t buf[32];
   enc.buffer = buf;
   enc.size = 32;
+  enc.pointer = 0;
 
   post_slip_encoder(&enc, "\xDB", 1);
 
@@ -43,6 +46,7 @@ void slip_encode_frame_end() {
   uint8_t buf[32];
   enc.buffer = buf;
   enc.size = 32;
+  enc.pointer = 0;
 
   post_slip_encoder(&enc, "Hello, ", 7);
   terminate_message_slip_encoder(&enc);
@@ -50,10 +54,25 @@ void slip_encode_frame_end() {
   assert(strncmp("Hello, \xC0", enc.buffer, 8) == 0);
 }
 
+void slip_encode_frame_concat() {
+  encoder enc;
+  uint8_t buf[32];
+  enc.buffer = buf;
+  enc.size = 32;
+  enc.pointer = 0;
+
+  post_slip_encoder(&enc, "Hello, ", 7);
+  post_slip_encoder(&enc, "world!\n", 7);
+  terminate_message_slip_encoder(&enc);
+
+  assert(strncmp("Hello, world!\n\xC0", enc.buffer, 15) == 0);
+}
+
 int main() {
   slip_encode_identity();
   slip_encode_escape_frame_end();
   slip_encode_escape_frame_escape();
   slip_encode_frame_end();
+  slip_encode_frame_concat();
   printf("All good\n");
 }

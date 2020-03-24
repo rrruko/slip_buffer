@@ -34,7 +34,7 @@
 #include "slip_encoder.h"
 
 void post_slip_encoder(encoder* enc, uint8_t* msg, uint32_t size) {
-  int j = 0;
+  int j = enc->pointer;
   for (int i = 0; i < size; i++) {
     if (msg[i] == END) {
       enc->buffer[j] = ESC;
