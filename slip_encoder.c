@@ -33,6 +33,13 @@
 
 #include "slip_encoder.h"
 
+
+void init_slip_encoder(encoder* enc, uint8_t* buf, uint32_t size) {
+  enc->buffer = buf;
+  enc->size = size;
+  enc->pointer = 0;
+}
+
 void post_slip_encoder(encoder* enc, uint8_t* msg, uint32_t size) {
   int j = enc->pointer;
   for (int i = 0; i < size; i++) {

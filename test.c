@@ -9,9 +9,7 @@
 void slip_encode_identity() {
   encoder enc;
   uint8_t buf[32];
-  enc.buffer = buf;
-  enc.size = 32;
-  enc.pointer = 0;
+  init_slip_encoder(&enc, buf, sizeof(buf));
 
   post_slip_encoder(&enc, "Hello, ", 7);
 
@@ -21,9 +19,7 @@ void slip_encode_identity() {
 void slip_encode_escape_frame_end() {
   encoder enc;
   uint8_t buf[32];
-  enc.buffer = buf;
-  enc.size = 32;
-  enc.pointer = 0;
+  init_slip_encoder(&enc, buf, sizeof(buf));
 
   post_slip_encoder(&enc, "\xC0", 1);
 
@@ -33,9 +29,7 @@ void slip_encode_escape_frame_end() {
 void slip_encode_escape_frame_escape() {
   encoder enc;
   uint8_t buf[32];
-  enc.buffer = buf;
-  enc.size = 32;
-  enc.pointer = 0;
+  init_slip_encoder(&enc, buf, sizeof(buf));
 
   post_slip_encoder(&enc, "\xDB", 1);
 
@@ -45,9 +39,7 @@ void slip_encode_escape_frame_escape() {
 void slip_encode_frame_end() {
   encoder enc;
   uint8_t buf[32];
-  enc.buffer = buf;
-  enc.size = 32;
-  enc.pointer = 0;
+  init_slip_encoder(&enc, buf, sizeof(buf));
 
   post_slip_encoder(&enc, "Hello, ", 7);
   terminate_message_slip_encoder(&enc);
@@ -58,9 +50,7 @@ void slip_encode_frame_end() {
 void slip_encode_frame_concat() {
   encoder enc;
   uint8_t buf[32];
-  enc.buffer = buf;
-  enc.size = 32;
-  enc.pointer = 0;
+  init_slip_encoder(&enc, buf, sizeof(buf));
 
   post_slip_encoder(&enc, "Hello, ", 7);
   post_slip_encoder(&enc, "world!\n", 7);
@@ -78,9 +68,7 @@ void on_complete(uint8_t* msg, uint32_t size) {
 void slip_decode_identity() {
   decoder dec;
   uint8_t buf[32];
-  dec.buffer = buf;
-  dec.size = 32;
-  dec.pointer = 0;
+  init_slip_decoder(&dec, buf, sizeof(buf));
 
   post_slip_decoder(&dec, "Hello, ", 7, on_complete);
   assert(strncmp("Hello, ", dec.buffer, 7) == 0);
@@ -89,9 +77,7 @@ void slip_decode_identity() {
 void slip_decode_single_fragment() {
   decoder dec;
   uint8_t buf[32];
-  dec.buffer = buf;
-  dec.size = 32;
-  dec.pointer = 0;
+  init_slip_decoder(&dec, buf, sizeof(buf));
 
   post_slip_decoder(&dec, "Hello, world!\n\xC0", 15, on_complete);
   assert(strncmp("Hello, world!\n", decoded_buf, 14) == 0);
@@ -100,9 +86,7 @@ void slip_decode_single_fragment() {
 void slip_decode_multi_fragment() {
   decoder dec;
   uint8_t buf[32];
-  dec.buffer = buf;
-  dec.size = 32;
-  dec.pointer = 0;
+  init_slip_decoder(&dec, buf, sizeof(buf));
 
   post_slip_decoder(&dec, "Hello, ", 7, on_complete);
   post_slip_decoder(&dec, "world!\n\xC0", 8, on_complete);
@@ -112,9 +96,7 @@ void slip_decode_multi_fragment() {
 void slip_decode_multi_message() {
   decoder dec;
   uint8_t buf[32];
-  dec.buffer = buf;
-  dec.size = 32;
-  dec.pointer = 0;
+  init_slip_decoder(&dec, buf, sizeof(buf));
 
   post_slip_decoder(&dec, "Hello, ", 7, on_complete);
   post_slip_decoder(&dec, "world!\n\xC0", 8, on_complete);
@@ -129,9 +111,7 @@ void slip_decode_multi_message() {
 void slip_decode_special_chars() {
   decoder dec;
   uint8_t buf[64];
-  dec.buffer = buf;
-  dec.size = 64;
-  dec.pointer = 0;
+  init_slip_decoder(&dec, buf, sizeof(buf));
 
   post_slip_decoder(&dec, "THERE ", 6, on_complete);
   post_slip_decoder(&dec, "IS \xDB\xDC", 5, on_complete);

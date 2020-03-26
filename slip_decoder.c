@@ -1,5 +1,12 @@
 #include "slip_decoder.h"
 
+
+void init_slip_decoder(decoder* dec, uint8_t* buf, uint32_t size) {
+  dec->buffer = buf;
+  dec->size = size;
+  dec->pointer = 0;
+}
+
 void post_slip_decoder(
     decoder* dec,
     uint8_t* msg,

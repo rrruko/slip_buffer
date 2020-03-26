@@ -11,6 +11,7 @@ typedef struct {
   uint32_t pointer;
 } decoder;
 
+void init_slip_decoder(decoder* dec, uint8_t* buf, uint32_t size);
 void post_slip_decoder(
     decoder* dec,
     uint8_t* msg,
