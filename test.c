@@ -121,6 +121,47 @@ void slip_decode_special_chars() {
   assert(strncmp("THERE IS \xC0NO \xDBPLANET \xDB\xDD" "B\n", decoded_buf, 25) == 0);
 }
 
+uint8_t round_trip_decoded_buf[512];
+uint32_t ptr = 0;
+void round_trip_on_complete(uint8_t* buf, uint32_t size) {
+  memcpy(round_trip_decoded_buf + ptr, buf, size);
+  ptr += size;
+}
+
+void slip_round_trip() {
+  encoder enc;
+  uint8_t enc_buf[512];
+  init_slip_encoder(&enc, enc_buf, sizeof(enc_buf));
+
+  decoder dec;
+  uint8_t dec_buf[512];
+  init_slip_decoder(&dec, dec_buf, sizeof(dec_buf));
+
+  memset(round_trip_decoded_buf, 0, sizeof(round_trip_decoded_buf));
+
+  uint8_t init_bytes[256];
+  for (uint16_t i = 0; i < 256; i++) {
+    init_bytes[i] = (i & 0xff) + 0x01;
+  }
+
+  for (uint16_t i = 0; i < 256; i++) {
+    uint8_t buf[1];
+    buf[0] = init_bytes[i];
+    if (i % 16 == 0 && i > 0) {
+      terminate_message_slip_encoder(&enc);
+    }
+    post_slip_encoder(&enc, buf, 1);
+  }
+
+  uint8_t esc_end[3] = { ESC, ESC_END, 0x00 };
+  uint8_t esc_esc[3] = { ESC, ESC_ESC, 0x00 };
+  assert(strstr(enc.buffer, (char*)esc_end));
+  assert(strstr(enc.buffer, (char*)esc_esc));
+
+  post_slip_decoder(&dec, enc.buffer, 512, round_trip_on_complete);
+  assert(strncmp(round_trip_decoded_buf, init_bytes, 256) == 0);
+}
+
 int main() {
   slip_encode_identity();
   slip_encode_escape_frame_end();
@@ -133,6 +174,8 @@ int main() {
   slip_decode_multi_fragment();
   slip_decode_multi_message();
   slip_decode_special_chars();
+
+  slip_round_trip();
 
   printf("All good\n");
 }

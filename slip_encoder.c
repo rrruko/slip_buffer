@@ -61,4 +61,5 @@ void post_slip_encoder(encoder* enc, uint8_t* msg, uint32_t size) {
 
 void terminate_message_slip_encoder(encoder* enc) {
   enc->buffer[enc->pointer] = END;
+  enc->pointer++;
 }
